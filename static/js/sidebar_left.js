@@ -162,6 +162,28 @@ async function doMagick(uploadedImages) {
     console.log("toUpdate", toUpdate);
     console.log("toCreate", toCreate);
 
+    if (toCreate.length > 0) {
+        const createdImages = await miro.board.widgets.create(toCreate.map(el => ({
+            type: 'IMAGE',
+            title: el.title,
+            url: `https://miro-adobe-app.herokuapp.com/images/${board_id}/${el.filename}`,
+            metadata: {[your_app_id]: el},
+            width: el.width,
+            x: el.x,
+            y: el.y,
+            rotation: 0
+        })));
+        const created = await miro.board.widgets.update(createdImages.map(image => (
+            {
+                id: image.id,
+                metadata: {
+                    [your_app_id]: Object.assign(image.metadata[your_app_id], {id: image.id})
+                }
+            }
+        )));
+        console.log(created);
+    }
+
     if (toDelete.length > 0) {
         const deleted = await miro.board.widgets.update(toDelete.map((image,i) => ({
             id: image.id,
@@ -188,28 +210,6 @@ async function doMagick(uploadedImages) {
             }
         }));
         console.log("updated", updated);
-    }
-
-    if (toCreate.length > 0) {
-        const createdImages = await miro.board.widgets.create(toCreate.map(el => ({
-            type: 'IMAGE',
-            title: el.title,
-            url: `https://miro-adobe-app.herokuapp.com/images/${board_id}/${el.filename}`,
-            metadata: {[your_app_id]: el},
-            width: el.width,
-            x: el.x,
-            y: el.y,
-            rotation: 0
-        })));
-        const created = await miro.board.widgets.update(createdImages.map(image => (
-            {
-                id: image.id,
-                metadata: {
-                    [your_app_id]: Object.assign(image.metadata[your_app_id], {id: image.id})
-                }
-            }
-        )));
-        console.log(created);
     }
 
 
