@@ -65,10 +65,12 @@ function addListener(el, s, fn) {
     s.split(' ').forEach(e => el.addEventListener(e, fn, false));
 }
 
+
 /**=========================================**/
 /**=========================================**/
 /**=========================================**/
 /**=========================================**/
+
 
 async function loadZip() {
     // файл берется из переменной file - т.е. из dragNdrop - либо из инпута
@@ -155,11 +157,17 @@ async function doMagick(uploadedImages) {
         .filter(existingImage => existingImage.metadata[your_app_id].filename !== undefined)
         .filter(existingImage => uploadedImages.find(image => image.url === existingImage.url));
 
+    // получаем только те картинки, которые нужно обновлять
+    let toRefresh = existingImages
+        .filter(existingImage => (existingImage.metadata[your_app_id].filename === undefined && existingImage.metadata[your_app_id].id !== undefined))
+        .filter(existingImage => uploadedImages.find(image => image.url === existingImage.url));
+
     // получаем только те картинки, которые нужно создавать
     let toCreate = uploadedImages.filter(image => !existingImages.find(el => el.url === image.url));
 
     console.log("toDelete", toDelete);
     console.log("toUpdate", toUpdate);
+    console.log("toRefresh", toRefresh);
     console.log("toCreate", toCreate);
 
     if (toCreate.length > 0) {
@@ -181,7 +189,7 @@ async function doMagick(uploadedImages) {
                 }
             }
         )));
-        console.log(created);
+        console.log("created", created);
     }
 
     if (toDelete.length > 0) {
@@ -212,8 +220,10 @@ async function doMagick(uploadedImages) {
         console.log("updated", updated);
     }
 
+    //todo написать toRefresh для картинок которые имеют только
 
 }
+
 
 /**=========================================**/
 /**=========================================**/
