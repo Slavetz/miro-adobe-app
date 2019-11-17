@@ -365,7 +365,7 @@
 				type: 'IMAGE',
 				title: el.title,
 				url: `https://miro-adobe-app.herokuapp.com/images/${board_id}/${el.metadata.filename}`,
-				metadata: {}[your_app_id] = el.metadata,
+				metadata: {[your_app_id]: el.metadata},
 				width: el.width,
 				x: el.x,
 				y: el.y,
