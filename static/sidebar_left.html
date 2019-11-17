@@ -1,0 +1,406 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+	<meta charset="UTF-8">
+	<title>Title</title>
+	<link rel="stylesheet" type="text/css" href="https://miro.com/app/static/rtb.uikit.css">
+	<script src="https://miro.com/app/static/miro.sdk.1.1.js"></script>
+	<style>
+		.sidebar {
+			width: 100%;
+			height: 100%;
+			background-color: #E5ECF1;
+			padding-top: 5em;
+			overflow: auto;
+			-webkit-display: flex;
+			-moz-display: flex;
+			-ms-display: flex;
+			-o-display: flex;
+			-khtml-display: flex;
+			display: flex;
+			-webkit-flex-direction: column;
+			-moz-flex-direction: column;
+			-ms-flex-direction: column;
+			-o-flex-direction: column;
+			-khtml-flex-direction: column;
+			flex-direction: column;
+			-webkit-justify-content: flex-start;
+			-moz-justify-content: flex-start;
+			-ms-justify-content: flex-start;
+			-o-justify-content: flex-start;
+			-khtml-justify-content: flex-start;
+			justify-content: flex-start;
+			-webkit-align-items: center;
+			-moz-align-items: center;
+			-ms-align-items: center;
+			-o-align-items: center;
+			-khtml-align-items: center;
+			align-items: center;
+		}
+
+		.box {
+			width: 300px;
+			height: 300px;
+		}
+
+		.box__dragndrop,
+		.box__uploading,
+		.box__success,
+		.box__error {
+			display: none;
+		}
+
+		.upload-pic {
+			width: 50px;
+		}
+
+		.box__uploading,
+		.box__success,
+		.box__error {
+			width: 100%;
+			height: 100%;
+			box-sizing: border-box;
+			font-size: 20px;
+			padding-left: 1em;
+			padding-right: 1em;
+			text-align: center;
+			-webkit-justify-content: center;
+			-moz-justify-content: center;
+			-ms-justify-content: center;
+			-o-justify-content: center;
+			-khtml-justify-content: center;
+			justify-content: center;
+			-webkit-align-items: center;
+			-moz-align-items: center;
+			-ms-align-items: center;
+			-o-align-items: center;
+			-khtml-align-items: center;
+			align-items: center;
+		}
+
+		.box {
+			background-color: #C8D9DE;
+			outline: 2px dashed black;
+			outline-offset: -10px;
+		}
+
+		.box .box__dragndrop {
+			display: inline;
+		}
+
+		.box.is-dragover {
+			background-color: white;
+		}
+
+		.box__file {
+			width: 0.1px;
+			height: 0.1px;
+			opacity: 0;
+			overflow: hidden;
+			position: absolute;
+			z-index: -1;
+		}
+
+		.box__file + label {
+			font-size: 1.25em;
+			color: black;
+			display: inline-block;
+			text-align: center;
+			cursor: pointer;
+			margin-bottom: 2em;
+			padding-top: 0.5em;
+			padding-bottom: 0.5em;
+			width: 100%;
+		}
+
+		.box__file:focus + label,
+		.box__file + label:hover {
+			background-color: #99b0bd;
+		}
+
+		.box__input {
+			box-sizing: border-box;
+			width: 100%;
+			height: 100%;
+			padding: 20px;
+			-webkit-display: flex;
+			-moz-display: flex;
+			-ms-display: flex;
+			-o-display: flex;
+			-khtml-display: flex;
+			display: flex;
+			-webkit-flex-direction: column;
+			-moz-flex-direction: column;
+			-ms-flex-direction: column;
+			-o-flex-direction: column;
+			-khtml-flex-direction: column;
+			flex-direction: column;
+			-webkit-justify-content: center;
+			-moz-justify-content: center;
+			-ms-justify-content: center;
+			-o-justify-content: center;
+			-khtml-justify-content: center;
+			justify-content: center;
+			-webkit-align-items: center;
+			-moz-align-items: center;
+			-ms-align-items: center;
+			-o-align-items: center;
+			-khtml-align-items: center;
+			align-items: center;
+		}
+
+		.box.is-uploading .box__input {
+			display: none;
+		}
+
+		.box.is-uploading .box__uploading {
+			display: flex;
+		}
+
+		.box.is-success .box__input, .box.is-success .box__uploading {
+			display: none;
+		}
+
+		.box.is-success .box__success {
+			display: flex;
+		}
+
+		.box.is-error .box__input {
+			display: none;
+		}
+
+		.box.is-error .box__error {
+			display: flex;
+			flex-direction: column;
+		}
+
+		.box__button {
+			display: none;
+			outline: none;
+			border: none;
+			width: 150px;
+			height: 40px;
+			font-size: 20px;
+		}
+
+		.box.has-file .box__button {
+			display: block;
+		}
+	</style>
+</head>
+<body>
+<main class="sidebar">
+	<div class="box">
+		<div class="box__input">
+			<input type="file"
+					class="box__file"
+					name="upload"
+					id="upload"
+					accept=".zip">
+
+			<label class="box__label" for="upload"><img src="./upload.png" alt="" class="upload-pic">
+				<br>
+				<strong>Выберите</strong><span class="box__dragndrop"> или перетащите файл</span>
+			</label>
+			<button class="box__button">Загрузить</button>
+		</div>
+		<div class="box__uploading">
+			<span class="message__heading">Загрузка&hellip;</span>
+		</div>
+		<div class="box__success">
+			<span class="message__heading">Готово!</span>
+		</div>
+		<div class="box__error">
+			<span class="message__heading">Ошибка!</span><span
+				class="error-message"></span>
+		</div>
+	</div>
+</main>
+
+<script>
+	const box = document.querySelector('.box');
+	let file; // в переменную будем класть загружаемый файл
+
+	// выключаем дефолтный dragNdrop браузера
+	addListener(box, 'drag dragstart dragend dragover dragenter dragleave drop', e => {
+		e.preventDefault();
+		e.stopPropagation();
+	});
+	// стилизация, в т.ч. показать/спрятать кнопку загрузки
+	addListener(box, 'dragover dragenter', e => {
+		box.classList.add('is-dragover');
+	});
+	addListener(box, 'dragleave dragend drop', e => {
+		box.classList.remove('is-dragover');
+	});
+	addListener(box, 'drop', e => {
+		let droppedFile = e.dataTransfer.files[0];
+		// принимаем только зип-файлы
+		if (droppedFile.name.replace(/.+(\.zip)/, '$1') !== '.zip') return;
+
+		file = droppedFile;
+		if (file) {
+			box.classList.add('has-file');
+			showFile(file);
+		}
+	});
+	document.querySelector('#upload').addEventListener('change', e => {
+		file = e.target.files[0];
+		if (file) {
+			box.classList.add('has-file');
+			showFile(file);
+		}
+	});
+
+	// показать имя выбранного файла
+	function showFile(file) {
+		document.querySelector('.box__label').innerHTML = file ? `Выбранный файл: <br> ${file.name} <br><br><strong>Загрузить другой</strong>` : '';
+	}
+
+	document.querySelector('.box__error').addEventListener('click', resetUploadBox);
+
+
+	let board_id;
+	document.querySelector('.box__button').addEventListener('click', loadZip);
+
+	async function loadZip() {
+		// файл берется из переменной file - т.е. из dragNdrop - либо из инпута
+		// если файла нет, или если это не зип, или если в данный момент происходит загрузка (случайное повторное срабатывание), ничего не делать
+		file = file || document.querySelector('#upload').files[0];
+		if (!file) return;
+		if (file.name.replace(/.+(\.zip)/, '$1') !== '.zip') {
+			showError('Принимаются только zip-архивы');
+			return;
+		}
+		if (box.classList.contains('is-uploading')) return;
+		box.classList.add('is-uploading');
+
+		// определение id доски. Нужно для аплоада
+		try {
+			let boardInfo = await miro.board.info.get();
+			board_id = boardInfo.id;
+		} catch (e) {
+			showError('Не получается определить id доски! ' + e.message);
+			return;
+		}
+
+		let uploadedImages;
+		// загрузка архива на heroku, получение списка картинок
+
+		try {
+			uploadedImages = await fetch(`https://my-rtb-app.herokuapp.com/uploadpics?board_id=${board_id}`, {
+				method: 'POST',
+				body: file
+			})
+				.then(res => {
+					// console.log('res после /uploadpics', res);
+					if (res.status === 500) {
+						showError('Ошибка при загрузке архива на heroku!');
+						return 'Error';
+					} else {
+						return res;
+					}
+				})
+				.then(res => res.json())
+				.then(res => {
+					res.forEach(el=>{
+						el.url = `https://my-rtb-app.herokuapp.com/images/${board_id}/${el.metadata.filename}`;
+					});
+					return res;
+				})
+		} catch (e) {
+			showError('Ошибка при загрузке архива на heroku! ' + e.message);
+			return;
+		}
+
+
+		box.classList.remove('is-uploading');
+		box.classList.add('is-success');
+
+
+
+		let existingImages = await miro.board.widgets.images.get();
+		console.log("existingImages", existingImages);
+
+		// добавление желтого прямоугольника тем слайдам, которые предполагается удалить (т.е. их нет в uploadedImages, но они есть в existingImages)
+		let toDelete = existingImages
+			.filter(existingImage => existingImage.metadata.filename !== undefined)
+			.filter(existingImage => !uploadedImages.find(image => image.url === existingImage.url));
+
+		let toUpdate = existingImages
+				.filter(existingImage => existingImage.metadata.filename !== undefined)
+				.filter(existingImage => uploadedImages.find(image => image.url === existingImage.url));
+
+		// получаем только те картинки, которые нужно создавать (нет в existingImages, есть в uploadedImages)
+		let toCreate = uploadedImages.filter(image => !existingImages.find(el => el.url === image.url));
+
+		console.log("toDelete", toDelete);
+		console.log("toUpdate", toUpdate);
+		console.log("toCreate", toCreate);
+
+		if (toDelete.length > 0) {
+			await miro.board.widgets.create(uploadedImages.map(el => ({
+				type: 'SHAPE',
+				text: 'Слайд удаляется',
+				x: el.x,
+				y: el.y,
+				width: el.width,
+				height: el.height,
+				style: {
+					backgroundColor: '#ffff00',
+					backgroundOpacity: 0.8,
+					fontSize: 350
+				}
+			})));
+		}
+
+		// todo if toUpdate
+
+		if (toCreate.length === 0) {
+			resetUploadBox();
+			return;
+		} else {
+			await miro.board.widgets.create(toCreate.map(el => ({
+				type: 'IMAGE',
+				title: el.title,
+				url: `https://my-rtb-app.herokuapp.com/images/${board_id}/${el.metadata.filename}`,
+				metadata: el.metadata,
+				width: el.width,
+				x: el.x,
+				y: el.y,
+				rotation: 0
+			})));
+
+			resetUploadBox();
+		}
+
+	}
+
+	function resetUploadBox() {
+		// удалить информацию о загружаемом файле из самих переменных/элементов
+		file = null;
+		document.querySelector('#upload').files.length = 0;
+		// отобразить это на стилях .box
+		box.classList.remove('is-uploading');
+		box.classList.remove('is-success');
+		box.classList.remove('is-error');
+		box.classList.remove('has-file');
+		document.querySelector('.box__label').innerHTML = '<img src="./upload.png" alt="" class="upload-pic"><br><strong>Выберите</strong><span class="box__dragndrop"> или перетащите файл</span>';
+	}
+
+	function showError(message) {
+		box.classList.remove('is-uploading');
+		box.classList.add('is-error');
+		box.querySelector('.error-message').textContent = message;
+	}
+
+	// функция для добавления обработчика на несколько событий
+	function addListener(el, s, fn) {
+		s.split(' ').forEach(e => el.addEventListener(e, fn, false));
+	}
+</script>
+
+
+</body>
+</html>
+
