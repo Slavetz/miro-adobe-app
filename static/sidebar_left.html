@@ -343,6 +343,7 @@
 
 		if (toDelete.length > 0) {
 			await miro.board.widgets.update(toDelete.map((el,e) => ({
+				id: el.id,
 				x: -(el.metadata[your_app_id].width*2),
 				y: el.metadata[your_app_id].height * 1.2 * e,
 				metadata: {[your_app_id]: {}},
@@ -353,6 +354,7 @@
 			await miro.board.widgets.update(toUpdate.map(el => {
 				let image = uploadedImagesObject[el.metadata[your_app_id].filename];
 				return {
+					id: el.id,
 					title: image.title,
 					url: `https://miro-adobe-app.herokuapp.com/images/${board_id}/${image.filename}`,
 					metadata: {[your_app_id]: image},
