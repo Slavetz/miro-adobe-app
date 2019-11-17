@@ -218,6 +218,7 @@
 </main>
 
 <script>
+	const your_app_id = "3074457347019986455";
 	const box = document.querySelector('.box');
 	let file; // в переменную будем класть загружаемый файл
 
@@ -304,7 +305,7 @@
 				.then(res => res.json())
 				.then(res => {
 					res.forEach(el=>{
-						el.url = `https://miro-adobe-app.herokuapp.com/images/${board_id}/${el.metadata.filename}`;
+						el.url = `https://miro-adobe-app.herokuapp.com/images/${board_id}/${el.metadata[your_app_id].filename}`;
 					});
 					return res;
 				})
@@ -324,11 +325,11 @@
 
 		// добавление желтого прямоугольника тем слайдам, которые предполагается удалить (т.е. их нет в uploadedImages, но они есть в existingImages)
 		let toDelete = existingImages
-			.filter(existingImage => existingImage.metadata.filename !== undefined)
+			.filter(existingImage => existingImage.metadata[your_app_id].filename !== undefined)
 			.filter(existingImage => !uploadedImages.find(image => image.url === existingImage.url));
 
 		let toUpdate = existingImages
-				.filter(existingImage => existingImage.metadata.filename !== undefined)
+				.filter(existingImage => existingImage.metadata[your_app_id].filename !== undefined)
 				.filter(existingImage => uploadedImages.find(image => image.url === existingImage.url));
 
 		// получаем только те картинки, которые нужно создавать (нет в existingImages, есть в uploadedImages)
@@ -363,8 +364,8 @@
 			await miro.board.widgets.create(toCreate.map(el => ({
 				type: 'IMAGE',
 				title: el.title,
-				url: `https://miro-adobe-app.herokuapp.com/images/${board_id}/${el.metadata.filename}`,
-				metadata: el.metadata,
+				url: `https://miro-adobe-app.herokuapp.com/images/${board_id}/${el.metadata[your_app_id].filename}`,
+				metadata: {}[your_app_id] = el.metadata,
 				width: el.width,
 				x: el.x,
 				y: el.y,
