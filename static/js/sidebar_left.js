@@ -121,25 +121,27 @@ async function loadZip() {
     console.log("toCreate", toCreate);
 
     if (toDelete.length > 0) {
-        await miro.board.widgets.update(toDelete.map((el,e) => ({
-            id: el.id,
-            x: -(el.metadata[your_app_id].width*2),
-            y: el.metadata[your_app_id].height * 1.2 * e,
+        await miro.board.widgets.update(toDelete.map((image,i) => ({
+            id: image.id,
+            x: -(image.metadata[your_app_id].width*2),
+            y: image.metadata[your_app_id].height * 1.2 * i,
             metadata: {[your_app_id]: {}},
         })));
     }
 
     if (toUpdate.length > 0) {
-        await miro.board.widgets.update(toUpdate.map(el => {
-            let image = uploadedImagesObject[el.metadata[your_app_id].filename];
+        await miro.board.widgets.update(toUpdate.map(image => {
+            let newImage = uploadedImagesObject[image.metadata[your_app_id].filename];
             return {
-                id: el.id,
-                title: image.title,
-                url: `https://miro-adobe-app.herokuapp.com/images/${board_id}/${image.filename}`,
-                metadata: {[your_app_id]: image},
-                width: image.width,
-                x: image.x,
-                y: image.y
+                id: image.id,
+                title: newImage.title,
+                url: `https://miro-adobe-app.herokuapp.com/images/${board_id}/${newImage.filename}`,
+                metadata: {
+                    [your_app_id]: Object.assign(newImage,{id: image.id})
+                },
+                width: newImage.width,
+                x: newImage.x,
+                y: newImage.y
             }
         }));
     }
@@ -158,6 +160,13 @@ async function loadZip() {
             y: el.y,
             rotation: 0
         })));
+        await miro.board.widgets.update(createdImages.map(image => (
+            {
+                metadata: {
+                    [your_app_id]: Object.assign(image.metadata[your_app_id],{id: image.id})
+                }
+            }
+        )));
         console.log(createdImages);
         resetUploadBox();
     }
