@@ -148,7 +148,7 @@ async function loadZip() {
         resetUploadBox();
         return;
     } else {
-        await miro.board.widgets.create(toCreate.map(el => ({
+        const createdImages = await miro.board.widgets.create(toCreate.map(el => ({
             type: 'IMAGE',
             title: el.title,
             url: `https://miro-adobe-app.herokuapp.com/images/${board_id}/${el.filename}`,
@@ -158,7 +158,7 @@ async function loadZip() {
             y: el.y,
             rotation: 0
         })));
-
+        console.log(createdImages);
         resetUploadBox();
     }
 

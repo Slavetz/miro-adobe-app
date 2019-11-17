@@ -66,7 +66,7 @@ miro.onReady(() => {
 					id: widget.id,
 					metadata: {[your_app_id]: {}}
 				};
-				miro.board.widgets.update(update);
+				miro.board.widgets.update(update).then(console.log);
 			}
 		})
 	}).then(()=>{
