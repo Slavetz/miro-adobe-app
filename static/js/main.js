@@ -59,25 +59,8 @@ miro.onReady(() => {
         }
     });
 
-	miro.addListener('WIDGETS_CREATED', async function (e){
-		for (const widget of e.data) {
-			let update;
-			if (widget.type === 'IMAGE' && !widget.title && widget.metadata[your_app_id] && widget.metadata[your_app_id].filename){
-				update = {
-					id: widget.id,
-					title: (await miro.board.widgets.get({id:"3074457347020468600"}))[0].title + " (Copy)",
-					metadata: {[your_app_id]: {id:widget.metadata[your_app_id]}}
-				};
-				miro.board.widgets.update(update).then(console.log);
-			} else if (widget.type === 'IMAGE' && !widget.title && widget.metadata[your_app_id]){
-				update = {
-					id: widget.id,
-					title: (await miro.board.widgets.get({id:"3074457347020468600"}))[0].title + " (Copy)",
-				};
-				miro.board.widgets.update(update).then(console.log);
-			}
-
-		}
+	miro.addListener('WIDGETS_CREATED', e => {
+		copyTitleFromSource(e.data);
 	}).then(()=>{
 		console.log("addListener WIDGETS_CREATED");
 	}).catch(console.log);

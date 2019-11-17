@@ -1,5 +1,6 @@
 const box = document.querySelector('.box');
 let file; // в переменную будем класть загружаемый файл
+let board_id;
 
 // выключаем дефолтный dragNdrop браузера
 addListener(box, 'drag dragstart dragend dragover dragenter dragleave drop', e => {
@@ -39,9 +40,35 @@ function showFile(file) {
 
 document.querySelector('.box__error').addEventListener('click', resetUploadBox);
 
-
-let board_id;
 document.querySelector('.box__button').addEventListener('click', loadZip);
+
+function resetUploadBox() {
+    // удалить информацию о загружаемом файле из самих переменных/элементов
+    file = null;
+    document.querySelector('#upload').files.length = 0;
+    // отобразить это на стилях .box
+    box.classList.remove('is-uploading');
+    box.classList.remove('is-success');
+    box.classList.remove('is-error');
+    box.classList.remove('has-file');
+    document.querySelector('.box__label').innerHTML = '<img src="./upload.png" alt="" class="upload-pic"><br><strong>Выберите</strong><span class="box__dragndrop"> или перетащите файл</span>';
+}
+
+function showError(message) {
+    box.classList.remove('is-uploading');
+    box.classList.add('is-error');
+    box.querySelector('.error-message').textContent = message;
+}
+
+// функция для добавления обработчика на несколько событий
+function addListener(el, s, fn) {
+    s.split(' ').forEach(e => el.addEventListener(e, fn, false));
+}
+
+/**=========================================**/
+/**=========================================**/
+/**=========================================**/
+/**=========================================**/
 
 async function loadZip() {
     // файл берется из переменной file - т.е. из dragNdrop - либо из инпута
@@ -95,6 +122,18 @@ async function loadZip() {
     box.classList.remove('is-uploading');
     box.classList.add('is-success');
 
+    doMagick(uploadedImages);
+
+}
+
+
+/**=========================================**/
+/**=========================================**/
+/**=========================================**/
+/**=========================================**/
+
+
+async function doMagick(uploadedImages) {
     let uploadedImagesObject = {};
     uploadedImages.forEach(image=>{
         uploadedImagesObject[image.filename] = image;
@@ -162,6 +201,7 @@ async function loadZip() {
         })));
         await miro.board.widgets.update(createdImages.map(image => (
             {
+                id: image.id,
                 metadata: {
                     [your_app_id]: Object.assign(image.metadata[your_app_id],{id: image.id})
                 }
@@ -170,28 +210,9 @@ async function loadZip() {
         console.log(createdImages);
         resetUploadBox();
     }
-
 }
 
-function resetUploadBox() {
-    // удалить информацию о загружаемом файле из самих переменных/элементов
-    file = null;
-    document.querySelector('#upload').files.length = 0;
-    // отобразить это на стилях .box
-    box.classList.remove('is-uploading');
-    box.classList.remove('is-success');
-    box.classList.remove('is-error');
-    box.classList.remove('has-file');
-    document.querySelector('.box__label').innerHTML = '<img src="./upload.png" alt="" class="upload-pic"><br><strong>Выберите</strong><span class="box__dragndrop"> или перетащите файл</span>';
-}
-
-function showError(message) {
-    box.classList.remove('is-uploading');
-    box.classList.add('is-error');
-    box.querySelector('.error-message').textContent = message;
-}
-
-// функция для добавления обработчика на несколько событий
-function addListener(el, s, fn) {
-    s.split(' ').forEach(e => el.addEventListener(e, fn, false));
-}
+/**=========================================**/
+/**=========================================**/
+/**=========================================**/
+/**=========================================**/
