@@ -47,6 +47,7 @@ const refreshIcon = '<svg version="1.1" id="Capa_1" xmlns="http://www.w3.org/200
 
 
 miro.onReady(() => {
+
 	miro.initialize({
         extensionPoints: {
             toolbar: {
@@ -68,7 +69,9 @@ miro.onReady(() => {
 				miro.board.widgets.update(update);
 			}
 		})
-	});
+	}).then(()=>{
+		console.log("addListener WIDGETS_CREATED");
+	}).catch(console.log);
 
 });
 
