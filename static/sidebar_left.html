@@ -216,9 +216,8 @@
 		</div>
 	</div>
 </main>
-
+<script src="app_id.js"></script>
 <script>
-	const your_app_id = "3074457347019986455";
 	const box = document.querySelector('.box');
 	let file; // в переменную будем класть загружаемый файл
 
@@ -321,7 +320,7 @@
 			uploadedImagesObject[image.filename] = image;
 		});
 
-		let existingImages = await miro.board.widgets.images.get();
+		let existingImages = await miro.board.widgets.get({type:'IMAGE'});
 		console.log("existingImages", existingImages);
 
 		// получаем только те картинки, которые нужно удалять

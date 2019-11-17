@@ -46,9 +46,8 @@ const refreshIcon = '<svg version="1.1" id="Capa_1" xmlns="http://www.w3.org/200
 
 
 
-rtb.onReady(() => {
-
-    rtb.initialize({
+miro.onReady(() => {
+	miro.initialize({
         extensionPoints: {
             toolbar: {
                 title: 'Upload Images',
@@ -59,6 +58,17 @@ rtb.onReady(() => {
         }
     });
 
+	miro.addListener('WIDGETS_CREATED', e => {
+		e.data.forEach(widget=>{
+			if (widget.type === 'IMAGE' && !widget.title && widget.metadata[your_app_id] && widget.metadata[your_app_id].title){
+				let update = {
+					id: widget.id,
+					metadata: {[your_app_id]: {}}
+				};
+				miro.board.widgets.update(update);
+			}
+		})
+	});
 
 });
 
