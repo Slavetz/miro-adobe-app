@@ -122,7 +122,9 @@ async function loadZip() {
     box.classList.remove('is-uploading');
     box.classList.add('is-success');
 
-    doMagick(uploadedImages);
+    await doMagick(uploadedImages);
+
+    resetUploadBox();
 
 }
 
@@ -134,6 +136,7 @@ async function loadZip() {
 
 
 async function doMagick(uploadedImages) {
+
     let uploadedImagesObject = {};
     uploadedImages.forEach(image=>{
         uploadedImagesObject[image.filename] = image;
@@ -160,16 +163,17 @@ async function doMagick(uploadedImages) {
     console.log("toCreate", toCreate);
 
     if (toDelete.length > 0) {
-        await miro.board.widgets.update(toDelete.map((image,i) => ({
+        const deleted = await miro.board.widgets.update(toDelete.map((image,i) => ({
             id: image.id,
             x: -(image.metadata[your_app_id].width*2),
             y: image.metadata[your_app_id].height * 1.2 * i,
             metadata: {[your_app_id]: {}},
         })));
+        console.log("deleted", deleted);
     }
 
     if (toUpdate.length > 0) {
-        await miro.board.widgets.update(toUpdate.map(image => {
+        const updated = await miro.board.widgets.update(toUpdate.map(image => {
             let newImage = uploadedImagesObject[image.metadata[your_app_id].filename];
             return {
                 id: image.id,
@@ -183,12 +187,10 @@ async function doMagick(uploadedImages) {
                 y: newImage.y
             }
         }));
+        console.log("updated", updated);
     }
 
-    if (toCreate.length === 0) {
-        resetUploadBox();
-        return;
-    } else {
+    if (toCreate.length > 0) {
         const createdImages = await miro.board.widgets.create(toCreate.map(el => ({
             type: 'IMAGE',
             title: el.title,
@@ -199,17 +201,18 @@ async function doMagick(uploadedImages) {
             y: el.y,
             rotation: 0
         })));
-        await miro.board.widgets.update(createdImages.map(image => (
+        const created = await miro.board.widgets.update(createdImages.map(image => (
             {
                 id: image.id,
                 metadata: {
-                    [your_app_id]: Object.assign(image.metadata[your_app_id],{id: image.id})
+                    [your_app_id]: Object.assign(image.metadata[your_app_id], {id: image.id})
                 }
             }
         )));
-        console.log(createdImages);
-        resetUploadBox();
+        console.log(created);
     }
+
+
 }
 
 /**=========================================**/
