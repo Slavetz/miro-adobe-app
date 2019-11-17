@@ -63,5 +63,5 @@ rtb.onReady(() => {
 });
 
 async function toolbar() {
-    miro.board.openLeftSidebar('https://my-rtb-app.herokuapp.com/static/sidebar_left.html');
+    miro.board.openLeftSidebar('https://miro-adobe-app.herokuapp.com/static/sidebar_left.html');
 }
