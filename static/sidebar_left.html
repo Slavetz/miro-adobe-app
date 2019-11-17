@@ -287,7 +287,6 @@
 
 		let uploadedImages;
 		// загрузка архива на heroku, получение списка картинок
-
 		try {
 			uploadedImages = await fetch(`https://miro-adobe-app.herokuapp.com/uploadpics?board_id=${board_id}`, {
 				method: 'POST',
@@ -305,7 +304,7 @@
 				.then(res => res.json())
 				.then(res => {
 					res.forEach(el=>{
-						el.url = `https://miro-adobe-app.herokuapp.com/images/${board_id}/${el.metadata.filename}`;
+						el.url = `https://miro-adobe-app.herokuapp.com/images/${board_id}/${el.filename}`;
 					});
 					return res;
 				})
@@ -314,25 +313,28 @@
 			return;
 		}
 
-
 		box.classList.remove('is-uploading');
 		box.classList.add('is-success');
 
-
+		let uploadedImagesObject = {};
+		uploadedImages.forEach(image=>{
+			uploadedImagesObject[image.filename] = image;
+		});
 
 		let existingImages = await miro.board.widgets.images.get();
 		console.log("existingImages", existingImages);
 
-		// добавление желтого прямоугольника тем слайдам, которые предполагается удалить (т.е. их нет в uploadedImages, но они есть в existingImages)
+		// получаем только те картинки, которые нужно удалять
 		let toDelete = existingImages
 			.filter(existingImage => existingImage.metadata[your_app_id].filename !== undefined)
 			.filter(existingImage => !uploadedImages.find(image => image.url === existingImage.url));
 
+		// получаем только те картинки, которые нужно обновлять
 		let toUpdate = existingImages
 				.filter(existingImage => existingImage.metadata[your_app_id].filename !== undefined)
 				.filter(existingImage => uploadedImages.find(image => image.url === existingImage.url));
 
-		// получаем только те картинки, которые нужно создавать (нет в existingImages, есть в uploadedImages)
+		// получаем только те картинки, которые нужно создавать
 		let toCreate = uploadedImages.filter(image => !existingImages.find(el => el.url === image.url));
 
 		console.log("toDelete", toDelete);
@@ -340,22 +342,26 @@
 		console.log("toCreate", toCreate);
 
 		if (toDelete.length > 0) {
-			await miro.board.widgets.create(uploadedImages.map(el => ({
-				type: 'SHAPE',
-				text: 'Слайд удаляется',
-				x: el.x,
-				y: el.y,
-				width: el.width,
-				height: el.height,
-				style: {
-					backgroundColor: '#ffff00',
-					backgroundOpacity: 0.8,
-					fontSize: 350
-				}
+			await miro.board.widgets.update(toDelete.map((el,e) => ({
+				x: -(el.metadata[your_app_id].width*2),
+				y: el.metadata[your_app_id].height * 1.2 * e,
+				metadata: {[your_app_id]: {}},
 			})));
 		}
 
-		// todo if toUpdate
+		if (toUpdate.length > 0) {
+			await miro.board.widgets.update(toUpdate.map(el => {
+				let image = uploadedImagesObject[el.metadata[your_app_id].filename];
+				return {
+					title: image.title,
+					url: `https://miro-adobe-app.herokuapp.com/images/${board_id}/${image.filename}`,
+					metadata: {[your_app_id]: image},
+					width: image.width,
+					x: image.x,
+					y: image.y
+				}
+			}));
+		}
 
 		if (toCreate.length === 0) {
 			resetUploadBox();
@@ -364,8 +370,8 @@
 			await miro.board.widgets.create(toCreate.map(el => ({
 				type: 'IMAGE',
 				title: el.title,
-				url: `https://miro-adobe-app.herokuapp.com/images/${board_id}/${el.metadata.filename}`,
-				metadata: {[your_app_id]: el.metadata},
+				url: `https://miro-adobe-app.herokuapp.com/images/${board_id}/${el.filename}`,
+				metadata: {[your_app_id]: el},
 				width: el.width,
 				x: el.x,
 				y: el.y,
