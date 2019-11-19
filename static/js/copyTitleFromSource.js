@@ -14,9 +14,8 @@ function copyTitleFromSource(widgets) {
                         };
                         /** Если скопированный элемент origin - то делаем его не origin */
                         if (widget.metadata[your_app_id].origin === true){
-                            update.metadata = {[your_app_id]: {id:widget.metadata[your_app_id].id, origin: false}}
+                            update.metadata[your_app_id] = {id:widget.metadata[your_app_id].id, origin: false}
                         }
-
                     } else {
                         /** Если НЕ нашли первоисточник трем title и metadata  */
                         update = {
