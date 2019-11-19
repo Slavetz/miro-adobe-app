@@ -157,11 +157,9 @@ async function doMagick(uploadedImages) {
     let existingOriginImages = await existingImages
         .filter(existingImage => existingImage.metadata[your_app_id].origin === true);
 
-
-
-    /** Только те картинки которые есть в загруженных но отсутсвуют на доске */
+    /** Только те картинки которые есть в загруженных но отсутсвуют на доске как origin */
     let toCreate = await uploadedImages
-        .filter(image => !existingImages.find(el => el.url === image.url));
+        .filter(image => !existingOriginImages.find(el => el.url === image.url));
 
     /** Только те картинки которые origin но отсутсвуют в загруженных */
     let toDelete = await existingOriginImages
