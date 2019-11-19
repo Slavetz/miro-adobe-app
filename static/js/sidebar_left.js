@@ -154,34 +154,34 @@ async function doMagick(uploadedImages) {
     console.log('existingImages', existingImages);
 
     /** Только origin картинки которые есть на доске */
-    let existingOriginImages = await existingImages
-        .filter(image => image.metadata[your_app_id].origin === true);
-    //let existingOriginImages = await miro.board.widgets.get({type:'IMAGE', metadata:{[your_app_id]:{origin: true}}});
+    //let existingOriginImages = existingImages
+    //  .filter(image => image.metadata[your_app_id].origin === true);
+    let existingOriginImages = await miro.board.widgets.get({type:'IMAGE', metadata:{[your_app_id]:{origin: true}}});
     console.log('existingOriginImages', existingOriginImages);
 
     /** Только те картинки которые есть в загруженных но отсутсвуют на доске как origin */
-    let toCreate = await uploadedImages
+    let toCreate = uploadedImages
         .filter(image => !existingOriginImages.find(el => el.url === image.url));
     console.log("toCreate",toCreate);
 
     /** Только те картинки которые origin но отсутсвуют в загруженных */
-    let toDelete = await existingOriginImages
+    let toDelete = existingOriginImages
         .filter(originImage => !uploadedImages.find(image => image.url === originImage.url));
     console.log("toDelete",toDelete);
 
     /** Только те картинки которые origin и есть в загруженных */
     // получаем только те картинки, которые нужно обновлять
-    let toUpdate = await existingOriginImages
+    let toUpdate = existingOriginImages
         .filter(originImage => uploadedImages.find(image => image.url === originImage.url));
     console.log("toUpdate",toUpdate);
 
     /** Только те картинки которые есть на доске и в загруженных и пофиг origin или не origin */
-    let toReload = await existingImages
+    let toReload = existingImages
         .filter(existingImage => uploadedImages.find(image => image.url === existingImage.url));
     console.log("toReload",toReload);
 
     if (toCreate.length > 0) {
-        const createdImages = await miro.board.widgets.create(toCreate.map(el => ({
+        miro.board.widgets.create(toCreate.map(el => ({
             type: 'IMAGE',
             title: el.title,
             url: `https://miro-adobe-app.herokuapp.com/images/${board_id}/${el.filename}`,
@@ -190,30 +190,35 @@ async function doMagick(uploadedImages) {
             x: el.x,
             y: el.y,
             rotation: 0
-        })));
-        const created = await miro.board.widgets.update(createdImages.map(image => (
-            {
-                id: image.id,
-                metadata: {
-                    [your_app_id]: Object.assign(image.metadata[your_app_id], {id: image.id})
-                }
-            }
-        )));
-        console.log(created);
+        }))).then(createdImages=>{
+           return miro.board.widgets.update(createdImages.map(image => (
+               {
+                   id: image.id,
+                   metadata: {
+                       [your_app_id]: Object.assign(image.metadata[your_app_id], {id: image.id})
+                   }
+               }
+           )))
+        })
+        .then(res=> {
+            console.log('created', res);
+        });
     }
 
     if (toDelete.length > 0) {
-        const deleted = await miro.board.widgets.update(toDelete.map((image,i) => ({
+        miro.board.widgets.update(toDelete.map((image,i) => ({
             id: image.id,
             x: -(image.metadata[your_app_id].width*2),
             y: image.metadata[your_app_id].height * 1.2 * i,
             metadata: {[your_app_id]: {}},
-        })));
-        console.log("deleted", deleted);
+        })))
+        .then(res=> {
+            console.log("deleted", res);
+        });
     }
 
     if (toUpdate.length > 0) {
-        const updated = await miro.board.widgets.update(toUpdate.map(image => {
+        miro.board.widgets.update(toUpdate.map(image => {
             let newImage = uploadedImagesObject[image.metadata[your_app_id].filename];
             return {
                 id: image.id,
@@ -226,18 +231,22 @@ async function doMagick(uploadedImages) {
                 x: newImage.x,
                 y: newImage.y
             }
-        }));
-        console.log("updated", updated);
+        }))
+        .then(res=> {
+            console.log("updated", res);
+        });
     }
 
     if (toReload.length > 0) {
-        const reloaded = await miro.board.widgets.update(toReload.map(image => {
+        miro.board.widgets.update(toReload.map(image => {
             return {
                 id: image.id,
                 url: image.url
             }
-        }));
-        console.log("reloaded", reloaded);
+        }))
+            .then(res=>{
+            console.log("reloaded", res);
+        });
     }
 
 
