@@ -25,6 +25,7 @@ addListener(box, 'drop', e => {
         showFile(file);
     }
 });
+
 document.querySelector('#upload').addEventListener('change', e => {
     file = e.target.files[0];
     if (file) {
@@ -71,16 +72,32 @@ function addListener(el, s, fn) {
 /**=========================================**/
 
 async function loadZip() {
+
     // файл берется из переменной file - т.е. из dragNdrop - либо из инпута
     // если файла нет, или если это не зип, или если в данный момент происходит загрузка (случайное повторное срабатывание), ничего не делать
+
     file = file || document.querySelector('#upload').files[0];
     if (!file) return;
     if (file.name.replace(/.+(\.zip)/, '$1') !== '.zip') {
         showError('Принимаются только zip-архивы');
         return;
     }
+
     if (box.classList.contains('is-uploading')) return;
     box.classList.add('is-uploading');
+
+    const uploadedImages = await upploadZipToHeroku(file);
+
+    box.classList.remove('is-uploading');
+    box.classList.add('is-success');
+
+    await doMagick(uploadedImages);
+
+    resetUploadBox();
+
+}
+
+async function upploadZipToHeroku (file){
 
     // определение id доски. Нужно для аплоада
     try {
@@ -91,40 +108,29 @@ async function loadZip() {
         return;
     }
 
-    let uploadedImages;
-    // загрузка архива на heroku, получение списка картинок
-    try {
-        uploadedImages = await fetch(`https://miro-adobe-app.herokuapp.com/uploadpics?board_id=${board_id}`, {
-            method: 'POST',
-            body: file
-        })
-            .then(res => {
-                // console.log('res после /uploadpics', res);
-                if (res.status === 500) {
-                    showError('Ошибка при загрузке архива на heroku!');
-                    return 'Error';
-                } else {
-                    return res;
-                }
-            })
-            .then(res => res.json())
-            .then(res => {
-                res.forEach(el=>{
-                    el.url = `https://miro-adobe-app.herokuapp.com/images/${board_id}/${el.filename}`;
-                });
+    return await fetch(`https://miro-adobe-app.herokuapp.com/uploadpics?board_id=${board_id}`, {
+        method: 'POST',
+        body: file
+    })
+        .then(res => {
+            // console.log('res после /uploadpics', res);
+            if (res.status === 500) {
+                return new Error('Error: Ошибка при загрузке архива на heroku!');
+            } else {
                 return res;
-            })
-    } catch (e) {
-        showError('Ошибка при загрузке архива на heroku! ' + e.message);
-        return;
-    }
+            }
+        })
+        .then(res => res.json())
+        .then(res => {
+            res.forEach(el=>{
+                el.url = `https://miro-adobe-app.herokuapp.com/images/${board_id}/${el.filename}`;
+            });
+            return res;
+        }).catch(e=>{
+            showError('Ошибка при загрузке архива на heroku! ' + e.message);
+            return;
+        });
 
-    box.classList.remove('is-uploading');
-    box.classList.add('is-success');
-
-    await doMagick(uploadedImages);
-
-    resetUploadBox();
 
 }
 
