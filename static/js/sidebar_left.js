@@ -228,13 +228,13 @@ async function doMagick(uploadedImages) {
     }
 
     if (toReload.length > 0) {
-        const reloaded = await miro.board.widgets.update(toUpdate.map(image => {
+        const reloaded = await miro.board.widgets.update(toReload.map(image => {
             return {
                 id: image.id,
                 url: image.url
             }
         }));
-        console.log("reloaded", updated);
+        console.log("reloaded", reloaded);
     }
 
 
