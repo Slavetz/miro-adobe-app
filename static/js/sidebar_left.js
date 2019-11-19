@@ -154,7 +154,9 @@ async function doMagick(uploadedImages) {
     console.log('existingImages', existingImages);
 
     /** Только origin картинки которые есть на доске */
-    let existingOriginImages = await miro.board.widgets.get({type:'IMAGE', metadata:{[your_app_id]:{origin: true}}});
+    let existingOriginImages = await existingImages
+        .filter(image => image.metadata[your_app_id].origin === true);
+    //let existingOriginImages = await miro.board.widgets.get({type:'IMAGE', metadata:{[your_app_id]:{origin: true}}});
     console.log('existingOriginImages', existingOriginImages);
 
     /** Только те картинки которые есть в загруженных но отсутсвуют на доске как origin */
