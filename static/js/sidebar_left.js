@@ -151,27 +151,32 @@ async function doMagick(uploadedImages) {
 
     /** Все картинки которые есть на доске */
     let existingImages = await miro.board.widgets.get({type:'IMAGE'});
+    console.log('existingImages', existingImages);
 
     /** Только origin картинки которые есть на доске */
     let existingOriginImages = await miro.board.widgets.get({type:'IMAGE', metadata:{[your_app_id]:{origin: true}}});
+    console.log('existingOriginImages', existingOriginImages);
 
     /** Только те картинки которые есть в загруженных но отсутсвуют на доске как origin */
     let toCreate = await uploadedImages
         .filter(image => !existingOriginImages.find(el => el.url === image.url));
+    console.log("toCreate",toCreate);
 
     /** Только те картинки которые origin но отсутсвуют в загруженных */
     let toDelete = await existingOriginImages
         .filter(originImage => !uploadedImages.find(image => image.url === originImage.url));
+    console.log("toDelete",toDelete);
 
     /** Только те картинки которые origin и есть в загруженных */
     // получаем только те картинки, которые нужно обновлять
     let toUpdate = await existingOriginImages
         .filter(originImage => uploadedImages.find(image => image.url === originImage.url));
+    console.log("toUpdate",toUpdate);
 
     /** Только те картинки которые есть на доске и в загруженных и пофиг origin или не origin */
     let toReload = await existingImages
         .filter(existingImage => uploadedImages.find(image => image.url === existingImage.url));
-
+    console.log("toReload",toReload);
 
     if (toCreate.length > 0) {
         const createdImages = await miro.board.widgets.create(toCreate.map(el => ({
