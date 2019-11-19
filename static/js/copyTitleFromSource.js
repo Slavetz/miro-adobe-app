@@ -6,15 +6,18 @@ function copyTitleFromSource(widgets) {
             miro.board.widgets.get({id:widget.metadata[your_app_id].id})
                 .then(data=>{
                     let update;
-                    if (data[0]){
+                    if (data[0] && widget.metadata[your_app_id].origin === true) {
                         /** Если нашли первоисточник переименовываем его */
                         update = {
                             id: widget.id,
-                            title: data[0].title + " (Copy)"
+                            title: data[0].title + " (Copy)",
+                            metadata: {[your_app_id]: {id: widget.metadata[your_app_id].id, origin: false}}
                         };
+                    } else if (data[0] && widget.metadata[your_app_id].origin === false){
                         /** Если скопированный элемент origin - то делаем его не origin */
-                        if (widget.metadata[your_app_id].origin === true){
-                            update.metadata[your_app_id] = {id:widget.metadata[your_app_id].id, origin: false}
+                        update = {
+                            id: widget.id,
+                            title: data[0].title + " (Copy)",
                         }
                     } else {
                         /** Если НЕ нашли первоисточник трем title и metadata  */
