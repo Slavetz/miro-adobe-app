@@ -137,37 +137,46 @@ async function loadZip() {
 
 async function doMagick(uploadedImages) {
 
+    /** Объект для быстрого сопоставления по ключу */
     let uploadedImagesObject = {};
     uploadedImages.forEach(image=>{
         uploadedImagesObject[image.filename] = image;
     });
 
+    /** Все картинки которые есть на доске */
     let existingImages = await miro.board.widgets.get({type:'IMAGE'});
     console.log("existingImages", existingImages);
 
-    // получаем только те картинки, которые нужно удалять
-    let toDelete = existingImages
-        .filter(existingImage => existingImage.metadata[your_app_id].filename !== undefined)
-        .filter(existingImage => !uploadedImages.find(image => image.url === existingImage.url));
+    /** Только origin картинки которые есть на доске */
+    let existingOriginImages = await existingImages
+        .filter(existingImage => existingImage.metadata[your_app_id].origin === true);
 
+
+
+    /** Только те картинки которые есть в загруженных но отсутсвуют на доске */
+    let toCreate = await uploadedImages
+        .filter(image => !existingImages.find(el => el.url === image.url));
+
+    /** Только те картинки которые origin но отсутсвуют в загруженных */
+    let toDelete = await existingOriginImages
+        .filter(originImage => !uploadedImages.find(image => image.url === originImage.url));
+
+    /** Только те картинки которые origin и есть в загруженных */
     // получаем только те картинки, которые нужно обновлять
-    let toUpdate = existingImages
-        .filter(existingImage => existingImage.metadata[your_app_id].filename !== undefined)
+    let toUpdate = await existingOriginImages
+        .filter(originImage => uploadedImages.find(image => image.url === originImage.url));
+
+    /** Только те картинки которые есть на доске и в загруженных и пофиг origin или не origin */
+    let toReload = await existingImages
         .filter(existingImage => uploadedImages.find(image => image.url === existingImage.url));
 
-    // получаем только те картинки, которые нужно создавать
-    let toCreate = uploadedImages.filter(image => !existingImages.find(el => el.url === image.url));
-
-    console.log("toDelete", toDelete);
-    console.log("toUpdate", toUpdate);
-    console.log("toCreate", toCreate);
 
     if (toCreate.length > 0) {
         const createdImages = await miro.board.widgets.create(toCreate.map(el => ({
             type: 'IMAGE',
             title: el.title,
             url: `https://miro-adobe-app.herokuapp.com/images/${board_id}/${el.filename}`,
-            metadata: {[your_app_id]: el},
+            metadata: {[your_app_id]: Object.assign(el,{origin:true})},
             width: el.width,
             x: el.x,
             y: el.y,
@@ -210,6 +219,16 @@ async function doMagick(uploadedImages) {
             }
         }));
         console.log("updated", updated);
+    }
+
+    if (toReload.length > 0) {
+        const reloaded = await miro.board.widgets.update(toUpdate.map(image => {
+            return {
+                id: image.id,
+                url: image.url
+            }
+        }));
+        console.log("reloaded", updated);
     }
 
 
