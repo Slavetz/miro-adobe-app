@@ -220,7 +220,7 @@ async function doMagick(uploadedImages) {
                 title: newImage.title,
                 url: `https://miro-adobe-app.herokuapp.com/images/${board_id}/${newImage.filename}`,
                 metadata: {
-                    [your_app_id]: Object.assign(newImage,{id: image.id})
+                    [your_app_id]: Object.assign(newImage,{id: image.id, origin: true})
                 },
                 width: newImage.width,
                 x: newImage.x,
