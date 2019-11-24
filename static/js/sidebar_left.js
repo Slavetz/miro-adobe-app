@@ -1,87 +1,43 @@
-const box = document.querySelector('.box');
-let file; // в переменную будем класть загружаемый файл
+const zipInput = document.querySelector('#zip_input');
+const uploadButton = document.querySelector('#upload_button');
+const box = document.querySelector('#upload_box');
 let board_id;
 
-// выключаем дефолтный dragNdrop браузера
-addListener(box, 'drag dragstart dragend dragover dragenter dragleave drop', e => {
-    e.preventDefault();
-    e.stopPropagation();
-});
-// стилизация, в т.ч. показать/спрятать кнопку загрузки
-addListener(box, 'dragover dragenter', e => {
-    box.classList.add('is-dragover');
-});
-addListener(box, 'dragleave dragend drop', e => {
-    box.classList.remove('is-dragover');
-});
-addListener(box, 'drop', e => {
-    let droppedFile = e.dataTransfer.files[0];
-    // принимаем только зип-файлы
-    if (droppedFile.name.replace(/.+(\.zip)/, '$1') !== '.zip') return;
-
-    file = droppedFile;
+zipInput.addEventListener('change', e => {
+    const file = e.target.files[0];
     if (file) {
+        uploadButton.removeAttribute('disabled');
         box.classList.add('has-file');
-        showFile(file);
+    } else {
+        resetUploadBox();
     }
 });
 
-document.querySelector('#upload').addEventListener('change', e => {
-    file = e.target.files[0];
-    if (file) {
-        box.classList.add('has-file');
-        showFile(file);
-    }
-});
-
-// показать имя выбранного файла
-function showFile(file) {
-    document.querySelector('.box__label').innerHTML = file ? `Выбранный файл: <br> ${file.name} <br><br><strong>Загрузить другой</strong>` : '';
-}
-
-document.querySelector('.box__error').addEventListener('click', resetUploadBox);
-
-document.querySelector('.box__button').addEventListener('click', loadZip);
+/**=========================================**/
+/**=========================================**/
+/**=========================================**/
+/**=========================================**/
 
 function resetUploadBox() {
     // удалить информацию о загружаемом файле из самих переменных/элементов
-    file = null;
-    document.querySelector('#upload').files.length = 0;
+    zipInput.files.length = 0;
+    zipInput.value = '';
+    uploadButton.setAttribute('disabled','disabled');
     // отобразить это на стилях .box
     box.classList.remove('is-uploading');
     box.classList.remove('is-success');
     box.classList.remove('is-error');
     box.classList.remove('has-file');
-    document.querySelector('.box__label').innerHTML = '<img src="./upload.png" alt="" class="upload-pic"><br><strong>Выберите</strong><span class="box__dragndrop"> или перетащите файл</span>';
 }
 
-function showError(message) {
-    box.classList.remove('is-uploading');
-    box.classList.add('is-error');
-    box.querySelector('.error-message').textContent = message;
-}
-
-// функция для добавления обработчика на несколько событий
-function addListener(el, s, fn) {
-    s.split(' ').forEach(e => el.addEventListener(e, fn, false));
-}
-
-/**=========================================**/
-/**=========================================**/
-/**=========================================**/
-/**=========================================**/
 
 async function loadZip() {
 
     // файл берется из переменной file - т.е. из dragNdrop - либо из инпута
     // если файла нет, или если это не зип, или если в данный момент происходит загрузка (случайное повторное срабатывание), ничего не делать
 
-    file = file || document.querySelector('#upload').files[0];
+    const file = zipInput.files[0];
     if (!file) return;
-    if (file.name.replace(/.+(\.zip)/, '$1') !== '.zip') {
-        showError('Принимаются только zip-архивы');
-        return;
-    }
 
     if (box.classList.contains('is-uploading')) return;
     box.classList.add('is-uploading');

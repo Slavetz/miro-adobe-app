@@ -6,220 +6,44 @@
 	<link rel="stylesheet" type="text/css" href="https://miro.com/app/static/rtb.uikit.css">
 	<script src="https://miro.com/app/static/miro.sdk.1.1.js"></script>
 	<style>
-		.sidebar {
+		#upload_box {
 			width: 100%;
-			height: 100%;
-			background-color: #E5ECF1;
-			padding-top: 5em;
-			overflow: auto;
-			-webkit-display: flex;
-			-moz-display: flex;
-			-ms-display: flex;
-			-o-display: flex;
-			-khtml-display: flex;
 			display: flex;
-			-webkit-flex-direction: column;
-			-moz-flex-direction: column;
-			-ms-flex-direction: column;
-			-o-flex-direction: column;
-			-khtml-flex-direction: column;
-			flex-direction: column;
-			-webkit-justify-content: flex-start;
-			-moz-justify-content: flex-start;
-			-ms-justify-content: flex-start;
-			-o-justify-content: flex-start;
-			-khtml-justify-content: flex-start;
-			justify-content: flex-start;
-			-webkit-align-items: center;
-			-moz-align-items: center;
-			-ms-align-items: center;
-			-o-align-items: center;
-			-khtml-align-items: center;
 			align-items: center;
-		}
-
-		.box {
-			width: 300px;
-			height: 300px;
-		}
-
-		.box__dragndrop,
-		.box__uploading,
-		.box__success,
-		.box__error {
-			display: none;
-		}
-
-		.upload-pic {
-			width: 50px;
-		}
-
-		.box__uploading,
-		.box__success,
-		.box__error {
-			width: 100%;
-			height: 100%;
-			box-sizing: border-box;
-			font-size: 20px;
-			padding-left: 1em;
-			padding-right: 1em;
-			text-align: center;
-			-webkit-justify-content: center;
-			-moz-justify-content: center;
-			-ms-justify-content: center;
-			-o-justify-content: center;
-			-khtml-justify-content: center;
 			justify-content: center;
-			-webkit-align-items: center;
-			-moz-align-items: center;
-			-ms-align-items: center;
-			-o-align-items: center;
-			-khtml-align-items: center;
-			align-items: center;
-		}
-
-		.box {
-			background-color: #C8D9DE;
-			outline: 2px dashed black;
-			outline-offset: -10px;
-		}
-
-		.box .box__dragndrop {
-			display: inline;
-		}
-
-		.box.is-dragover {
-			background-color: white;
-		}
-
-		.box__file {
-			width: 0.1px;
-			height: 0.1px;
-			opacity: 0;
-			overflow: hidden;
-			position: absolute;
-			z-index: -1;
-		}
-
-		.box__file + label {
-			font-size: 1.25em;
-			color: black;
-			display: inline-block;
-			text-align: center;
-			cursor: pointer;
-			margin-bottom: 2em;
-			padding-top: 0.5em;
-			padding-bottom: 0.5em;
-			width: 100%;
-		}
-
-		.box__file:focus + label,
-		.box__file + label:hover {
-			background-color: #99b0bd;
-		}
-
-		.box__input {
+			flex-direction: column;
+			background-color: lightgrey;
+			padding: 10px;
 			box-sizing: border-box;
+		}
+		#upload_box * {
+			margin: 5px;
+		}
+		#zip_input {
+			background-color: #bbbaba;
+			padding: 5px;
+			border-radius: 5px;
+		}
+		#about {
 			width: 100%;
-			height: 100%;
-			padding: 20px;
-			-webkit-display: flex;
-			-moz-display: flex;
-			-ms-display: flex;
-			-o-display: flex;
-			-khtml-display: flex;
-			display: flex;
-			-webkit-flex-direction: column;
-			-moz-flex-direction: column;
-			-ms-flex-direction: column;
-			-o-flex-direction: column;
-			-khtml-flex-direction: column;
-			flex-direction: column;
-			-webkit-justify-content: center;
-			-moz-justify-content: center;
-			-ms-justify-content: center;
-			-o-justify-content: center;
-			-khtml-justify-content: center;
-			justify-content: center;
-			-webkit-align-items: center;
-			-moz-align-items: center;
-			-ms-align-items: center;
-			-o-align-items: center;
-			-khtml-align-items: center;
-			align-items: center;
-		}
-
-		.box.is-uploading .box__input {
-			display: none;
-		}
-
-		.box.is-uploading .box__uploading {
-			display: flex;
-		}
-
-		.box.is-success .box__input, .box.is-success .box__uploading {
-			display: none;
-		}
-
-		.box.is-success .box__success {
-			display: flex;
-		}
-
-		.box.is-error .box__input {
-			display: none;
-		}
-
-		.box.is-error .box__error {
-			display: flex;
-			flex-direction: column;
-		}
-
-		.box__button {
-			display: none;
-			outline: none;
-			border: none;
-			width: 150px;
-			height: 40px;
-			font-size: 20px;
-		}
-
-		.box.has-file .box__button {
-			display: block;
+			padding: 10px;
+			box-sizing: border-box;
 		}
 	</style>
 </head>
 <body>
 <main class="sidebar">
-	<div class="box">
-		<div class="box__input">
-			<input type="file"
-					class="box__file"
-					name="upload"
-					id="upload"
-					accept=".zip">
-
-			<label class="box__label" for="upload"><img src="./upload.png" alt="" class="upload-pic">
-				<br>
-				<strong>Выберите</strong><span class="box__dragndrop"> или перетащите файл</span>
-			</label>
-			<button class="box__button">Загрузить</button>
-		</div>
-		<div class="box__uploading">
-			<span class="message__heading">Загрузка&hellip;</span>
-		</div>
-		<div class="box__success">
-			<span class="message__heading">Готово!</span>
-		</div>
-		<div class="box__error">
-			<span class="message__heading">Ошибка!</span><span
-				class="error-message"></span>
-		</div>
+	<div id="upload_box">
+		<label for="zip_input">Choose .miro file to upload</label>
+		<input type="file" id="zip_input" name="zip_input" accept=".miro">
+		<button id="upload_button" disabled="disabled" onclick="loadZip()">Upload file</button>
+	</div>
+	<div id="about">
+		<p>Same text about extension!!!</p>
 	</div>
 </main>
 <script src="js/app_id.js"></script>
 <script src="js/sidebar_left.js"></script>
-
-
 </body>
 </html>
 

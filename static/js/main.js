@@ -68,5 +68,5 @@ miro.onReady(() => {
 });
 
 async function toolbar() {
-    miro.board.openLeftSidebar('https://miro-adobe-app.herokuapp.com/static/sidebar_left.html');
+	miro.board.ui.openLeftSidebar('https://miro-adobe-app.herokuapp.com/static/sidebar_left.html');
 }
