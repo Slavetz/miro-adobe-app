@@ -144,6 +144,16 @@ function uploadPics(req, res) {
                 }
             }
 
+			// джипеги пишем в папку под названием id доски
+			if (zipEntry.entryName.includes(".png")) {
+				let file = zipEntry.getData();
+				try {
+					fs.writeFileSync(`images/${board_id}/` + zipEntry.name, file)
+				} catch (e) {
+					console.log('ошибка при записи файла!', e);
+				}
+			}
+
             if ( i === zipEntries.length - 1 ) {
                 console.log('последний zipEntry');
                 if (!res_string) {
