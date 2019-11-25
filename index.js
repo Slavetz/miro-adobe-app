@@ -4,8 +4,6 @@ const path = require('path');
 const fs = require('fs');
 
 const rtbOauth = require('./src/oauth.js');
-const config = require('./src/config.js');
-const chowner = require('./src/chowner');
 const AdmZip = require('adm-zip');
 
 const mkdirp = require('mkdirp');
@@ -14,71 +12,18 @@ const PORT = process.env.PORT || 5000;
 
 let app = express()
 	.use(cors())
-	.use('/static', express.static('static'))
+	.use('/app', express.static('app'))
 	.use('/images', express.static(path.join(__dirname, 'images')))
 	.get('/oauth', oauth)
-	.get('/chowner', chowner)
-	.post('/file', file)
 	.post('/uploadpics', uploadPics)
 	.listen(PORT, () => console.log(`Listening on ${ PORT }`));
 
-/** +++++++++++++++++++++++++++++++++++++++++++++++++ */
 
-/** Обработка POST на / */
-/** +++++++++++++++++++++++++++++++++++++++++++++++++ */
-
-/** принимает архив, в котором содержится resources.json
- *
- * отправляет обратно содержимое resources.json для обновления ресурсов */
-function file(req, res) {
-	const board_id = req.query.board_id; // id доски передается в query
-
-	if (!board_id) {
-		res.status(400).send({error: 'Не был передан id доски'});
-	}
-
-	// в реквесте приходит zip-файл. Записываем его в корень под именем id доски
-	req.pipe(
-	    fs.createWriteStream(board_id + '.zip')
-    )
-		.on('close', function () {
-
-			// тут же читаем файл
-			let zip;
-			let zipEntries;
-
-			try {
-                zip = new AdmZip(board_id + '.zip');
-                zipEntries = zip.getEntries();
-            } catch (e){
-                console.error(e);
-                res.status(500).send({error: e});
-                return;
-            }
-
-			// находим нужный нам resources.json, ругаемся, если не нашли
-			const json = zipEntries.find(entry => entry.entryName == "resources.json");
-			if (!json) {
-				res.status(400).send({error: 'resources.json не найден в полученном архиве'});
-				return;
-			}
-
-			// пишем содержимое json в переменную в виде строки
-			let res_string = json.getData().toString('utf8');
-			// заменяем id ресурсов на строки, поскольку в виде чисел они слишком большие и ломают js
-			res_string = res_string.replace(/(:\s*)(\d+)(\s*,)/g, '$1"$2"$3');
-			// отправляем json обратно
-			res.status(200).send(res_string);
-		})
-		.on('error', function (e) {
-			res.status(500).send({error: e});
-		});
-}
-
-/** принимает архив, в котором есть images.json и какое-то количество jpg-файлов
- *
+/**
+ * принимает архив, в котором есть images.json и какое-то количество jpg-файлов
  * Пишет файлы в папку images/:board_id/
- * Содержимое json отправляет обратно для создания виджетов на доске */
+ * Содержимое json отправляет обратно для создания виджетов на доске
+ * */
 function uploadPics(req, res) {
 	const board_id = req.query.board_id; // id доски передается в query
 
